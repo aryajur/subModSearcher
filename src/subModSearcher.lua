@@ -12,7 +12,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 	Searcher for nested lua modules
 	This module makes searching for nested modules cleaner for complex search paths.
 
-	For example is the search path is a/b/?/c/?.lua
+	For example if the search path is a/b/?/c/?.lua
 	The the normal search for module mod.submod searches this path:
 	a/b/mod/submod/c/mod/submod.lua			-- This does not comply with good hierarchical representation of mod module
 	
@@ -39,35 +39,43 @@ package.searchers[#package.searchers + 1] = function(mod)
 		--print("subst1="..subst1)
 		-- Now loop through all the lua module paths
 		for path in package.path:gmatch("(.-)"..delim) do
-			local pathBac = path
-			-- Substitute the last question mark with subst and all before with top
-			local _,num = path:gsub("%?","")
-			path = path:gsub("%?",top,num-1)
-			path = path:gsub("%?",subst)
-			--print("Search at..."..path)
-			-- try loading this file
-			local f,err = loadfile(path)
-			if not f then
-				totErr = totErr.."\n\tno file '"..path.."'"
-			else
-				--print("FOUND")
-				return f
-			end
-			
-			-- Now try with subst1
-			path = pathBac
-			_,num = path:gsub("%?","")
-			path = path:gsub("%?",top,num-1)
-			path = path:gsub("%?",subst1)
-			--print("Alternate Search at..."..path)
-			-- try loading this file
-			local f,err = loadfile(path)
-			if not f then
-				totErr = totErr.."\n\tno file '"..path.."'"
-			else
-				--print("FOUND")
-				return f
-			end
+			if path ~= "" then
+				local pathBac = path
+				-- Substitute the last question mark with subst and all before with top
+				local _,num = path:gsub("%?","")
+				path = path:gsub("%?",top,num-1)
+				path = path:gsub("%?",subst)
+				--print("Search at..."..path)
+				-- try loading this file
+				local f,err = loadfile(path)
+				if not f then
+					if err:find("No such file") then
+						totErr = totErr.."\n\tno file '"..path.."'"
+					else
+						error("error loading module '"..mod.."' from file '"..path.."': "..err,3)
+					end
+				else
+					--print("FOUND")
+					return f
+				end
+				
+				-- Now try with subst1
+				path = pathBac
+				_,num = path:gsub("%?","")
+				if num > 1 then	-- if there are more than 1 then only try this one
+					path = path:gsub("%?",top,num-1)
+					path = path:gsub("%?",subst1)
+					--print("Alternate Search at..."..path)
+					-- try loading this file
+					f,err = loadfile(path)
+					if not f then
+						totErr = totErr.."\n\tno file '"..path.."'"
+					else
+						--print("FOUND")
+						return f
+					end
+				end
+			end		-- if path ~= "" ends here
 		end
 		return totErr
 	end	
@@ -109,9 +117,10 @@ package.searchers[#package.searchers + 1] = function(mod)
 			path = path:gsub("%?",subst1)
 			--print("Alternate Search at..."..path)
 			-- try loading this file
-			--print(path)
-			local f,err = package.loadlib(path,"luaopen_"..mod:gsub("%.","_"))
+			--print(path,"luaopen_"..mod:gsub("%.","_"),num)
+			f,err = package.loadlib(path,"luaopen_"..mod:gsub("%.","_"))
 			if not f then
+				--print("Not loaded",err)
 				totErr = totErr.."\n\tno file '"..path.."'"
 			else
 				--print("FOUND")
