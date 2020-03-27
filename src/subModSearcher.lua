@@ -26,7 +26,11 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 	Same for the C modules
 
 ]]
-package.searchers[#package.searchers + 1] = function(mod)
+local key = "searchers"
+if _VERSION == "Lua 5.1" then
+	key = "loaders"
+end
+package[key][#package[key] + 1] = function(mod)
 	-- Check if this is a multi hierarchy module
 	if mod:find(".",1,true) then
 		-- Get the top most name 
@@ -38,7 +42,11 @@ package.searchers[#package.searchers + 1] = function(mod)
 		local subst1 = mod:match("^.-%.(.+)$"):gsub("%.",sep)	-- The subsequent names separated by the system separator instead of dots
 		--print("subst1="..subst1)
 		-- Now loop through all the lua module paths
-		for path in package.path:gmatch("(.-)"..delim) do
+		local ppath = package.path
+		if ppath:sub(-1,-1) ~= "delim" then
+			ppath = ppath..delim
+		end
+		for path in ppath:gmatch("(.-)"..delim) do
 			if path ~= "" then
 				local pathBac = path
 				-- Substitute the last question mark with subst and all before with top
@@ -82,7 +90,7 @@ package.searchers[#package.searchers + 1] = function(mod)
 end
 
 -- Searcher for nested dynamic libraries
-package.searchers[#package.searchers + 1] = function(mod)
+package[key][#package[key] + 1] = function(mod)
 	-- Check if this is a multi hierarchy module
 	if mod:find(".",1,true) then
 		-- Get the top most name 
@@ -94,6 +102,10 @@ package.searchers[#package.searchers + 1] = function(mod)
 		local subst1 = mod:match("^.-%.(.+)$"):gsub("%.",sep)
 		--print("subst1="..subst1,"subst="..subst)
 		-- Now loop through all the lua module paths
+		local ppath = package.cpath
+		if ppath:sub(-1,-1) ~= delim then
+			ppath = ppath..delim
+		end
 		for path in package.cpath:gmatch("(.-)"..delim) do
 			local pathBac = path
 			local _,num = path:gsub("%?","")
