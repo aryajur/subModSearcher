@@ -64,7 +64,7 @@ package[key][#package[key] + 1] = function(mod)
 					end
 				else
 					--print("FOUND")
-					return f
+					return f,path
 				end
 				
 				-- Now try with subst1
@@ -80,7 +80,7 @@ package[key][#package[key] + 1] = function(mod)
 						totErr = totErr.."\n\tno file '"..path.."'"
 					else
 						--print("FOUND")
-						return f
+						return f,path
 					end
 				end
 			end		-- if path ~= "" ends here
@@ -119,7 +119,7 @@ package[key][#package[key] + 1] = function(mod)
 				totErr = totErr.."\n\tno file '"..path.."'"
 			else
 				--print("FOUND")
-				return f
+				return f,path
 			end
 			
 			-- Now try with subst1
@@ -136,7 +136,7 @@ package[key][#package[key] + 1] = function(mod)
 				totErr = totErr.."\n\tno file '"..path.."'"
 			else
 				--print("FOUND")
-				return f
+				return f,path
 			end
 		end
 		return totErr
