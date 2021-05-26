@@ -77,7 +77,11 @@ package[key][#package[key] + 1] = function(mod)
 					-- try loading this file
 					f,err = loadfile(path)
 					if not f then
-						totErr = totErr.."\n\tno file '"..path.."'"
+						if err:find("No such file") then
+							totErr = totErr.."\n\tno file '"..path.."'"
+						else
+							error("error loading module '"..mod.."' from file '"..path.."': "..err,3)
+						end
 					else
 						--print("FOUND")
 						return f,path
