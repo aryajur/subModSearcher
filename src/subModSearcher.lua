@@ -1,6 +1,6 @@
 --[[
 The MIT License (MIT)
-Copyright (c) 2016, Milind Gupta
+Copyright (c) 2021, Milind Gupta
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
@@ -20,8 +20,14 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 	
 	a/b/mod/c/mod/submod.lua
 	
+	It will also search the alternative path:
+	a/b/mod/c/submod.lua
+	
 	For mod.subMod.subMod1 it will search:
 	a/b/mod/c/mod/subMod/subMod1.lua
+	
+	It will also search the alternative path:
+	a/b/mod/c/submod/submod1.lua
 	
 	Same for the C modules
 
@@ -53,7 +59,7 @@ package[key][#package[key] + 1] = function(mod)
 				local _,num = path:gsub("%?","")
 				path = path:gsub("%?",top,num-1)
 				path = path:gsub("%?",subst)
-				--print("Search at..."..path)
+				--print("SS:Search at..."..path)
 				-- try loading this file
 				local f,err = loadfile(path)
 				if not f then
@@ -73,7 +79,7 @@ package[key][#package[key] + 1] = function(mod)
 				if num > 1 then	-- if there are more than 1 then only try this one
 					path = path:gsub("%?",top,num-1)
 					path = path:gsub("%?",subst1)
-					--print("Alternate Search at..."..path)
+					--print("SS:Alternate Search at..."..path)
 					-- try loading this file
 					f,err = loadfile(path)
 					if not f then
