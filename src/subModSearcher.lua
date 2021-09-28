@@ -38,10 +38,12 @@ if _VERSION == "Lua 5.1" then
 end
 package[key][#package[key] + 1] = function(mod)
 	-- Check if this is a multi hierarchy module
-	if mod:find(".",1,true) then
+	local dotpos = mod:find(".",1,true)
+	if dotpos and dotpos > 1 and dotpos < #mod then
 		-- Get the top most name 
 		local totErr = ""
 		local top = mod:sub(1,mod:find(".",1,true)-1)
+		--print("top="..top)
 		local sep = package.config:match("(.-)%s")
 		local delim = package.config:match(".-%s+(.-)%s")
 		local subst = mod:gsub("%.",sep)			-- The whole module name separated by the system separator instead of dots
@@ -102,7 +104,8 @@ end
 -- Searcher for nested dynamic libraries
 package[key][#package[key] + 1] = function(mod)
 	-- Check if this is a multi hierarchy module
-	if mod:find(".",1,true) then
+	local dotpos = mod:find(".",1,true)
+	if dotpos and dotpos > 1 and dotpos < #mod then
 		-- Get the top most name 
 		local totErr = ""
 		local top = mod:sub(1,mod:find(".",1,true)-1)
